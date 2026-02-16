@@ -22,3 +22,14 @@ symbol,shares,cost_price,cost_currency,purchase_date,memo
 8593.T,100,710,JPY,2023-03-13,三菱HCキャピタル/旧NISA
 7974.T,100,5520,JPY,2023-04-18,任天堂/旧NISA
 9104.T,400,3063,JPY,,商船三井/旧NISA
+AAPL,9,156.32,USD,,Apple/特定5+旧NISA4
+BTI,40,40.27,USD,,BTI/特定1+NISA39
+F,150,9.33,USD,,Ford/NISA成長
+GOOGL,1,337.50,USD,,Alphabet/NISA成長
+KO,17,70.10,USD,,Coca-Cola/特定2+NISA15
+ORCL,1,263.80,USD,,Oracle/特定
+OXM,10,43.80,USD,,Oxford Industries/NISA成長
+PFE,40,25.78,USD,,Pfizer/NISA成長
+SPYD,41,43.15,USD,,SPYD ETF/特定3+NISA38
+T,69,24.04,USD,,AT&T/特定4+NISA65
+XOM,10,119.41,USD,,Exxon Mobil/NISA成長
