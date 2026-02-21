@@ -438,6 +438,56 @@ def compute_alert_level(trend_health: dict, change_quality: dict) -> dict:
     }
 
 
+def run_health_check_single(symbol: str, client) -> dict:
+    """Run health check on a single stock (not portfolio-based).
+
+    Parameters
+    ----------
+    symbol : str
+        Ticker symbol (e.g. '7011.T').
+    client
+        yahoo_client module (get_price_history, get_stock_detail).
+
+    Returns
+    -------
+    dict
+        Keys: positions, alerts, summary — same structure as run_health_check().
+    """
+    hist = client.get_price_history(symbol, period="1y")
+    trend_health = check_trend_health(hist)
+
+    stock_detail = client.get_stock_detail(symbol)
+    if stock_detail is None:
+        stock_detail = {}
+    change_quality = check_change_quality(stock_detail)
+    alert = compute_alert_level(trend_health, change_quality)
+    long_term = check_long_term_suitability(stock_detail)
+
+    name = stock_detail.get("longName") or stock_detail.get("shortName") or symbol
+    result = {
+        "symbol": symbol,
+        "name": name,
+        "pnl_pct": None,
+        "trend_health": trend_health,
+        "change_quality": change_quality,
+        "alert": alert,
+        "long_term": long_term,
+    }
+
+    alerts = [result] if alert["level"] != ALERT_NONE else []
+    counts = {"healthy": 0, "early_warning": 0, "caution": 0, "exit": 0}
+    if alert["level"] == ALERT_NONE:
+        counts["healthy"] = 1
+    else:
+        counts[alert["level"]] = 1
+
+    return {
+        "positions": [result],
+        "alerts": alerts,
+        "summary": {"total": 1, **counts},
+    }
+
+
 def run_health_check(csv_path: str, client) -> dict:
     """Run health check on all portfolio holdings.
 

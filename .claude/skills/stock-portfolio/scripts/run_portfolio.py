@@ -545,15 +545,19 @@ def cmd_analyze(csv_path: str) -> None:
 # Command: health (KIK-356)
 # ---------------------------------------------------------------------------
 
-def cmd_health(csv_path: str) -> None:
-    """Run health check on portfolio holdings."""
+def cmd_health(csv_path: str, symbol: str = None) -> None:
+    """Run health check on portfolio holdings or a single stock."""
     if not HAS_HEALTH_CHECK:
         print("Error: health_check モジュールが見つかりません。")
         sys.exit(1)
 
-    print("ヘルスチェック実行中（価格・財務データ取得）...\n")
-
-    health_data = hc_run_health_check(csv_path, yahoo_client)
+    if symbol:
+        print(f"ヘルスチェック実行中: {symbol}（価格・財務データ取得）...\n")
+        from src.core.health_check import run_health_check_single
+        health_data = run_health_check_single(symbol, yahoo_client)
+    else:
+        print("ヘルスチェック実行中（価格・財務データ取得）...\n")
+        health_data = hc_run_health_check(csv_path, yahoo_client)
     positions = health_data.get("positions", [])
 
     if not positions:
@@ -924,7 +928,11 @@ def main():
     subparsers.add_parser("list", help="保有銘柄一覧表示")
 
     # health (KIK-356)
-    subparsers.add_parser("health", help="保有銘柄ヘルスチェック")
+    health_parser = subparsers.add_parser("health", help="保有銘柄ヘルスチェック")
+    health_parser.add_argument(
+        "--symbol", default=None,
+        help="単一銘柄のヘルスチェック (例: 7011.T)。未指定時はポートフォリオ全体をチェック",
+    )
 
     # forecast (KIK-359)
     subparsers.add_parser("forecast", help="推定利回り（3シナリオ）")
@@ -1033,7 +1041,7 @@ def main():
     elif args.command == "list":
         cmd_list(csv_path)
     elif args.command == "health":
-        cmd_health(csv_path)
+        cmd_health(csv_path, symbol=getattr(args, "symbol", None))
     elif args.command == "forecast":
         cmd_forecast(csv_path)
     elif args.command == "rebalance":
