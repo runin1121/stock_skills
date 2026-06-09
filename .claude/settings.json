@@ -13,15 +13,15 @@
             "timeout": 30000
           }
         ]
-      }
-    ],
-    "Stop": [
+      },
       {
-        "matcher": "",
+        "matcher": "Bash",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "会話の中で株の売買（buy/sell コマンド）が実行された場合のみ、ポートフォリオのHHI集中度を確認し、危険な集中(セクターHHI>0.4)があれば警告してください。売買が実行されていない場合は何もしないでください。"
+            "type": "command",
+            "command": "CMD=$(jq -r '.tool_input.command // empty'); if echo \"$CMD\" | grep -qE 'run_portfolio\\.py (buy|sell)'; then cd /home/user/stock_skills && RESULT=$(python3 .claude/skills/stock-portfolio/scripts/run_portfolio.py analyze 2>/dev/null); HHI=$(echo \"$RESULT\" | grep -oE 'HHI[^0-9]*([0-9]+\\.[0-9]+)' | grep -oE '[0-9]+\\.[0-9]+' | head -1); if [ -n \"$HHI\" ] && awk \"BEGIN{exit !($HHI > 0.4)}\"; then echo \"{\\\"systemMessage\\\": \\\"⚠️ セクター集中警告: HHI=$HHI (>0.4)。ポートフォリオが特定セクターに集中しています。分散を検討してください。\\\"}\"; fi; fi",
+            "timeout": 30,
+            "async": true
           }
         ]
       }
